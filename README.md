@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8419339.svg)](https://doi.org/10.5281/zenodo.8419339)
 
-Authors: Felix Nößler, Christian Guill, Toni Klauschies
+Authors: Christian Guill, Felix Nößler, Toni Klauschies
 
 This repository contains scripts to reproduce figures in the manuscript.
 
