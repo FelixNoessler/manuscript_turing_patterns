@@ -1,6 +1,5 @@
 # Manuscript code for: "Unlocking consumer coexistence: The role of self-organised spatial heterogeneity"
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8419339.svg)](https://doi.org/10.5281/zenodo.8419339)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10233860.svg)](https://doi.org/10.5281/zenodo.10233860)
 
 Authors: Christian Guill, Felix Nößler, and Toni Klauschies
 
