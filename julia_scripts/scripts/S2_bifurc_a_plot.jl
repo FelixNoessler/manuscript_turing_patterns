@@ -49,7 +49,7 @@ let
         tellheight=false)
 
     ############ xlabel
-    Label(fig[2, 2], L"\qquad\qquad\;\;\;\;\,a_H",
+    Label(fig[2, 2], L"\text{ }\qquad\qquad\qquad\qquad\qquad a_H",
         tellwidth=false,
         fontsize=22)
     Label(fig[2, 2], "Attack rate of the heterotroph  ",

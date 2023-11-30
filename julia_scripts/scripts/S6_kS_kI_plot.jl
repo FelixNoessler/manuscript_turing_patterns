@@ -44,7 +44,7 @@ let
             sim_result = isone(y) ? kS_0_result : kS_2_result
             sce = x
 
-            coex_thresh = 1e-12
+            coex_thresh = 1e-10
             HS_survived = sim_result["H_density"][:, :, sce, 1] .> coex_thresh
             HI_survived = sim_result["H_density"][:, :, sce, 2] .> coex_thresh
             coexistence = HS_survived .&& HI_survived
@@ -149,7 +149,7 @@ let
 
 
     ##########
-    Label(fig[3:4, 1], L"\qquad\qquad\qquad\qquad\;\;\;\;\, d_{max,I}",
+    Label(fig[3:4, 1], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad d_{max,I}",
         rotation=pi/2,
         tellheight=false,
         fontsize=24)
@@ -158,7 +158,7 @@ let
         rotation=pi/2)
 
     ##########
-    Label(fig[5, 2:3], L"\qquad\qquad\qquad\qquad\qquad\;\; d_{max,S}",
+    Label(fig[5, 2:3], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\;\;\; d_{max,S}",
         fontsize=24)
     Label(fig[5, 2:3], "Maximal dispersal rate of the superior competitor     ",
         )

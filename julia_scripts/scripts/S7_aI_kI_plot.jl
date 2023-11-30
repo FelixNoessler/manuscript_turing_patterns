@@ -41,7 +41,7 @@ let
             # xminorticks = IntervalsBetween(2),
             xticks = (0.0:0.4:1.2, xticklabels))
 
-        coex_thresh = 1e-12
+        coex_thresh = 1e-10
         HS_survived = sim_result["H_density"][:, :, sce, 1] .> coex_thresh
         HI_survived = sim_result["H_density"][:, :, sce, 2] .> coex_thresh
         coexistence = HS_survived .&& HI_survived
@@ -102,7 +102,7 @@ let
 
 
     ##########
-    Label(fig[3, 1], L"\qquad\qquad\qquad\;\;\;\;\;\; k_I",
+    Label(fig[3, 1], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\;\;\; k_I",
         rotation=pi/2,
         tellheight=false,
         fontsize=24)
@@ -111,7 +111,7 @@ let
         rotation=pi/2)
 
     ##########
-    Label(fig[4, 2:4], L"\qquad\qquad\qquad\;\;\;\;\;\; a_I",
+    Label(fig[4, 2:4], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\;\;\; a_I",
         fontsize=24)
     Label(fig[4, 2:4], "Attack rate of the inferior competitor  ",
         )

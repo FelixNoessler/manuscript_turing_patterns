@@ -27,7 +27,6 @@ let
     aS_val = 1.2
     kS_val = 0
 
-
     xticklabels = ["     10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹   "]
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
 
@@ -41,7 +40,7 @@ let
     for u in 1:2
         sce += 1
 
-        coex_thresh = 1e-12
+        coex_thresh = 1e-10
         HS_survived = sim_result["H_density"][:, :, sce, 1] .> coex_thresh
         HI_survived = sim_result["H_density"][:, :, sce, 2] .> coex_thresh
         coexistence = HS_survived .&& HI_survived
@@ -68,7 +67,8 @@ let
         HI_survived_env = env_result["H_density"][:, :, sce, 2] .> coex_thresh
         coexistence_env = HS_survived_env .&& HI_survived_env
 
-        pattern_coex = .! (coexistence .&& .! coexistence_env)
+        pattern_coex = coexistence .&& .! coexistence_env
+        only_hetcoex = coexistence_env .&& .! coexistence
 
         Axis(fig[3,1+u];
             backgroundcolor=(:white,1),
@@ -105,13 +105,13 @@ let
         contourf!(
             dmaxS,
             dmaxI,
-            pattern_coex',
+            .! pattern_coex',
             levels=2,
             colormap=(:greys, 0.2))
         contour!(
             dmaxS,
             dmaxI,
-            pattern_coex',
+            .! pattern_coex',
             levels=2,
             color=(:white, 1))
 
@@ -149,7 +149,7 @@ let
     end
 
     ##########
-    Label(fig[3, 1], L"\qquad\qquad\qquad\qquad\;\;\;\;\, d_{max,I}",
+    Label(fig[3, 1], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad d_{max,I}",
         rotation=pi/2,
         tellheight=false,
         fontsize=24)
@@ -158,7 +158,8 @@ let
         rotation=pi/2)
 
     ##########
-    Label(fig[4, 2:3], L"\qquad\qquad\qquad\qquad\qquad\;\; d_{max,S}",
+    Label(fig[4, 2:3],
+        L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\;\;\; d_{max,S}",
         fontsize=24)
     Label(fig[4, 2:3], "Maximal dispersal rate of the superior competitor     ")
 
@@ -169,6 +170,7 @@ let
     resize_to_layout!(fig)
     display(fig)
 
-    nothing
     save("figures/02_dmax_dmax_prep.pdf", fig;)
+
+    nothing
 end
