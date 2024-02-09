@@ -1,7 +1,6 @@
 # -----------------------------------------------------------
 # Script Name: Run all julia scripts
 # Purpose: Recreate the figures 2, S2, S6, S7, S8, S10, S11
-# Author: Felix Nößler
 # Date: 2023-11-30
 # -----------------------------------------------------------
 
