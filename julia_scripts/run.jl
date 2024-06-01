@@ -30,7 +30,7 @@ Pkg.instantiate()
 # or skip the simulation and just create the plots.
 # If you skip the simulation,
 # saved files with simulation results will used to create the plots.
-only_plot = true
+only_plot = false
 
 # resolution of the simulation
 # 300 means:

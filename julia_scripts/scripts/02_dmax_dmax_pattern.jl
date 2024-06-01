@@ -2,6 +2,7 @@ using OrdinaryDiffEq
 using JLD2
 using UnPack
 using Statistics
+using Accessors
 import ComponentArrays as ca
 import Tables
 
@@ -22,17 +23,17 @@ end
 
 
 function final_densities(u)
-    HS = u.HSx[end] + u.HSy[end]
-    HI = u.HIx[end] + u.HIy[end]
-    return HS, HI
+    S = u.Sx[end] + u.Sy[end]
+    I = u.Ix[end] + u.Iy[end]
+    return S, I
 end
 
 function calc_cv(u)
-    HSx_cv = std(u.HSx) / mean(u.HSx)
-    HSy_cv = std(u.HSy) / mean(u.HSy)
-    HIx_cv = std(u.HIx) / mean(u.HIx)
-    HIy_cv = std(u.HIy) / mean(u.HIy)
-    cv = (HSx_cv + HSy_cv + HIx_cv + HIy_cv) / 4
+    Sx_cv = std(u.Sx) / mean(u.Sx)
+    Sy_cv = std(u.Sy) / mean(u.Sy)
+    Ix_cv = std(u.Ix) / mean(u.Ix)
+    Iy_cv = std(u.Iy) / mean(u.Iy)
+    cv = (Sx_cv + Sy_cv + Ix_cv + Iy_cv) / 4
     return cv
 end
 
@@ -42,77 +43,61 @@ function autotroph_diff(u)
 end
 
 
-function only_superior!(du,u,p,t)
+function only_superior!(du, u, p, t)
     ### states
-    @unpack Nx_star, Ny_star, Ax_star, Ay_star, HSx_star, HSy_star = u
+    @unpack Nx_star, Ny_star, Ax_star, Ay_star, Sx_star, Sy_star = u
 
     ### parameters
-    @unpack S, D, Nh, rmax, h, e, dN, dA = p
-    @unpack kS, dmaxS, aS, AcritS = p
+    @unpack S, D, r, h, e, aS, dN, dA, dS = p
 
     ### first system
-    rx = rmax*Nx_star/(Nh+Nx_star)
-    ry = rmax*Ny_star/(Nh+Ny_star)
     gx = aS*Ax_star/(1+aS*h*Ax_star)
     gy = aS*Ay_star/(1+aS*h*Ay_star)
-    dHx = dmaxS/(1+exp(kS*(Ax_star-AcritS)))
-    dHy = dmaxS/(1+exp(kS*(Ay_star-AcritS)))
 
-    du.Nx_star = D*S -D*Nx_star -rx*Ax_star +dN*(Ny_star-Nx_star)
-    du.Ny_star = D*S -D*Ny_star -ry*Ay_star +dN*(Nx_star-Ny_star)
-    du.Ax_star = rx*Ax_star -gx*HSx_star -D*Ax_star +dA*(Ay_star-Ax_star)
-    du.Ay_star = ry*Ay_star -gy*HSy_star -D*Ay_star +dA*(Ax_star-Ay_star)
-    du.HSx_star = e*gx*HSx_star -D*HSx_star -dHx*HSx_star +dHy*HSy_star
-    du.HSy_star = e*gy*HSy_star -D*HSy_star -dHy*HSy_star +dHx*HSx_star
+    du.Nx_star = D*S -D*Nx_star -r*Ax_star*Nx_star +dN*(Ny_star-Nx_star)
+    du.Ny_star = D*S -D*Ny_star -r*Ay_star*Ny_star +dN*(Nx_star-Ny_star)
+    du.Ax_star = r*Ax_star*Nx_star -gx*Sx_star -D*Ax_star +dA*(Ay_star-Ax_star)
+    du.Ay_star = r*Ay_star*Ny_star -gy*Sy_star -D*Ay_star +dA*(Ax_star-Ay_star)
+    du.Sx_star = e*gx*Sx_star -D*Sx_star +dS*(Sy_star-Sx_star)
+    du.Sy_star = e*gy*Sy_star -D*Sy_star +dS*(Sx_star-Sy_star)
 end
 
 
 function both_competitors!(du,u,p,t)
     ### states
-    @unpack Nx, Ny, Ax, Ay, HSx, HSy, HIx, HIy = u
+    @unpack Nx, Ny, Ax, Ay, Sx, Sy, Ix, Iy = u
 
     ### parameters
-    @unpack S, D, Nh, rmax, h, e, dN, dA = p
-    @unpack kS, kI, dmaxS, dmaxI, aS, aI, AcritS, AcritI = p
+    @unpack S, D, r, h, e, aS, aI, dN, dA, dS, dI = p
 
     ### second system
-    rx = rmax*Nx/(Nh+Nx)
-    ry = rmax*Ny/(Nh+Ny)
     gxS = aS*Ax/(1+aS*h*Ax)
     gyS = aS*Ay/(1+aS*h*Ay)
     gxI = aI*Ax/(1+aI*h*Ax)
     gyI = aI*Ay/(1+aI*h*Ay)
-    AcritS = D/(aS*(e-h*D))
-    AcritI = D/(aI*(e-h*D))
-    dHSx = dmaxS/(1+exp(kS*(Ax-AcritS)))
-    dHSy = dmaxS/(1+exp(kS*(Ay-AcritS)))
-    dHIx = dmaxI/(1+exp(kI*(Ax-AcritI)))
-    dHIy = dmaxI/(1+exp(kI*(Ay-AcritI)))
 
-    du.Nx = D*S -rx*Ax -D*Nx +dN*(Ny-Nx)
-    du.Ny = D*S -ry*Ay -D*Ny +dN*(Nx-Ny)
-    du.Ax = rx*Ax -gxS*HSx -gxI*HIx -D*Ax +dA*(Ay-Ax)
-    du.Ay = ry*Ay -gyS*HSy -gyI*HIy -D*Ay +dA*(Ax-Ay)
-    du.HSx = e*gxS*HSx -D*HSx -dHSx*HSx +dHSy*HSy
-    du.HSy = e*gyS*HSy -D*HSy -dHSy*HSy +dHSx*HSx
-    du.HIx = e*gxI*HIx -D*HIx -dHIx*HIx +dHIy*HIy
-    du.HIy = e*gyI*HIy -D*HIy -dHIy*HIy +dHIx*HIx
+    du.Nx = D*S -r*Ax*Nx -D*Nx +dN*(Ny-Nx)
+    du.Ny = D*S -r*Ay*Ny -D*Ny +dN*(Nx-Ny)
+    du.Ax = r*Ax*Nx -gxS*Sx -gxI*Ix -D*Ax +dA*(Ay-Ax)
+    du.Ay = r*Ay*Ny -gyS*Sy -gyI*Iy -D*Ay +dA*(Ax-Ay)
+    du.Sx = e*gxS*Sx -D*Sx +dS*(Sy-Sx)
+    du.Sy = e*gyS*Sy -D*Sy +dS*(Sx-Sy)
+    du.Ix = e*gxI*Ix -D*Ix +dI*(Iy-Ix)
+    du.Iy = e*gyI*Iy -D*Iy +dI*(Ix-Iy)
 end
 
 
 
 function run_sim_patterns(; nvals)
     ###################### parameters of scenarios
-    dmaxI_vals = 10 .^ LinRange(-3, 1, nvals)
-    dmaxS_vals = 10 .^ LinRange(-3, 1, nvals)
-    kI_vals = [0.0, 2.0]
-    nscenarios = length(kI_vals)
+    dI_vals = 10 .^ LinRange(-3, 1, nvals)
+    dS_vals = 10 .^ LinRange(-3, 1, nvals)
     ######################
 
     ###################### outputs
-    H_density = Array{Float64}(undef, nvals, nvals, nscenarios, 2)
-    cvs = Array{Float64}(undef, nvals, nvals, nscenarios)
-    auto_diff = Array{Float64}(undef, nvals, nscenarios)
+    H_density = Array{Float64}(undef, nvals, nvals, 2)
+    cvs = Array{Float64}(undef, nvals, nvals)
+    auto_diff = Array{Float64}(undef, nvals)
     ######################
 
     ###################### time span of the simulations
@@ -123,29 +108,28 @@ function run_sim_patterns(; nvals)
     ######################
 
     ###################### parameters that do not change
-    ### these will change: kI, dmaxS, dmaxI
+    ### these will change: dS, dI
     p = (
-        S = 4.8,
+        S = 5.0,
         D = 0.3,
-        Nh = 1.5,
-        rmax = 0.7,
-        h = 0.53,
+        r = 0.5,
+        h = 0.5,
         e = 0.33,
-        dN = 1.0,
-        dA = 0.001,
-        kS = 0.0,
         aS = 1.2,
         aI = 1.0,
-        AcritS = 0.3/(1.2*(0.33-0.53*0.3)), # D/(aS*(e-h*D))
-        AcritI = 0.3/(1.0*(0.33-0.53*0.3))
+        dN = 4.0,
+        dA = 0.004,
+        dS = nothing,
+        dI = nothing
     )
+    p_onlyS = deepcopy(p)
     ######################
 
     ###################### inital conditions
     u0_onlyS = ca.ComponentArray(
         Nx_star=7.0, Ny_star=2.0,
         Ax_star=1.0, Ay_star=1.0,
-        HSx_star=0.2, HSy_star=0.1,
+        Sx_star=0.2, Sy_star=0.1
     )
     ######################
 
@@ -153,76 +137,68 @@ function run_sim_patterns(; nvals)
     cb = local_cb(; local_threshold=1e-30)
     ######################
 
-    for sce in 1:nscenarios
-        progress = 0
-        @info "Scenario: $sce"
+    progress = 0
+    @time for s in eachindex(dS_vals)
+        progress += 1
+        actual_progress = round(progress / nvals; digits=2)
+        println(actual_progress)
 
-        kI = kI_vals[sce]
+        @reset p_onlyS.dS = dS_vals[s]
 
-        @time for s in eachindex(dmaxS_vals)
-            progress += 1
-            actual_progress = round(progress / nvals; digits=2)
-            println(actual_progress)
+        prob_onlyS = ODEProblem(
+            only_superior!,
+            u0_onlyS,
+            tspan_onlyS,
+            p_onlyS;)
+        sol_onlyS = solve(prob_onlyS, Vern9();
+            saveat=tsave_onlyS,
+            reltol=1e-12,
+            abstol=1e-12,
+            maxiters=1e20);
 
-            p_onlyS = (;
+        ############### store outputs
+        u_onlyS = Tables.columntable(sol_onlyS.u);
+        auto_diff[s] = autotroph_diff(u_onlyS)
+
+        ############### prepare inital conditions
+        u0_final = ca.ComponentArray(;
+            Nx=u_onlyS.Nx_star[end],
+            Ny=u_onlyS.Ny_star[end],
+            Ax=u_onlyS.Ax_star[end],
+            Ay=u_onlyS.Ay_star[end],
+            Sx=u_onlyS.Sx_star[end],
+            Sy=u_onlyS.Sy_star[end],
+            Ix=0.001, Iy=0.0001
+        )
+
+        @Threads.threads for i in eachindex(dI_vals)
+            p_final = (;
                 p...,
-                dmaxS=dmaxS_vals[s])
-            prob_onlyS = ODEProblem(
-                only_superior!,
-                u0_onlyS,
-                tspan_onlyS,
-                p_onlyS;)
-            sol_onlyS = solve(prob_onlyS, Vern9();
-                saveat=tsave_onlyS,
+                dI=dI_vals[i],
+                dS=dS_vals[s])
+
+            prob = ODEProblem(
+                both_competitors!,
+                u0_final,
+                tspan,
+                p_final;
+                callback=cb)
+            sol = solve(prob, Vern9();
+                saveat=tsave,
                 reltol=1e-12,
                 abstol=1e-12,
                 maxiters=1e20);
 
             ############### store outputs
-            u_onlyS = Tables.columntable(sol_onlyS.u);
-            auto_diff[s, sce] = autotroph_diff(u_onlyS)
-
-            ############### prepare inital conditions
-            u0_final = ca.ComponentArray(;
-                Nx=u_onlyS.Nx_star[end],
-                Ny=u_onlyS.Ny_star[end],
-                Ax=u_onlyS.Ax_star[end],
-                Ay=u_onlyS.Ay_star[end],
-                HSx=u_onlyS.HSx_star[end],
-                HSy=u_onlyS.HSy_star[end],
-                HIx=0.001, HIy=0.0001
-            )
-
-            @Threads.threads for i in eachindex(dmaxI_vals)
-                p_final = (;
-                    p...,
-                    dmaxI=dmaxI_vals[i],
-                    dmaxS=dmaxS_vals[s],
-                    kI)
-                prob = ODEProblem(
-                    both_competitors!,
-                    u0_final,
-                    tspan,
-                    p_final;
-                    callback=cb)
-                sol = solve(prob, Vern9();
-                    saveat=tsave,
-                    reltol=1e-12,
-                    abstol=1e-12,
-                    maxiters=1e20);
-
-                ############### store outputs
-                u = Tables.columntable(sol.u);
-                H_density[i, s, sce, :] .= final_densities(u)
-                cvs[i, s, sce] = calc_cv(u)
-            end
+            u = Tables.columntable(sol.u);
+            H_density[i, s, :] .= final_densities(u)
+            cvs[i, s] = calc_cv(u)
         end
     end
 
     return (;
         H_density, cvs, auto_diff,
-        dmaxI_vals, dmaxS_vals, nvals,
-        kI_vals)
+        dI_vals, dS_vals, nvals)
 end
 
 @info "Run simulations for figure 2, part 2"
