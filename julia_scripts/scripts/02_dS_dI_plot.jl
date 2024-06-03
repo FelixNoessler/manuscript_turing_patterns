@@ -19,13 +19,13 @@ let
     # ]
     ##############################
 
-    sim_result = load("simulation_results/02_dmax_dmax.jld2")
-    env_result = load("simulation_results/02_env_het.jld2")
+    sim_result = load("simulation_results/02_dS_dI_pattern.jld2")
+    env_result = load("simulation_results/02_dS_dI_env_het.jld2")
     dS = sim_result["dS_vals"]
     dI = sim_result["dI_vals"]
 
     coex_thresh = 1e-10
-    cv_tresh = 0.3
+    cv_tresh = 0.2
 
     #### pattern formation
     HS_survived = sim_result["H_density"][:, :, 1] .> coex_thresh
@@ -129,8 +129,8 @@ let
     Legend(fig[1, 3],
            [MarkerElement(color = :blue, marker = :rect, markersize = 30),
            MarkerElement(color = :lightblue, marker = :rect, markersize = 30)],
-           [" Coexistence\n with oscillations",
-            " Coexistence\n without oscillations"],
+           [" Coexistence\n with oscillatory dynamic",
+            " Coexistence\n with static dynamic"],
            framevisible = false)
 
 
@@ -202,7 +202,7 @@ let
     # resize_to_layout!(fig)
     display(fig)
 
-    # save("figures/02_dmax_dmax_prep.pdf", fig;)
+    save("figures/02_dS_dI.png", fig;)
 
     nothing
 end

@@ -41,12 +41,12 @@ nvals = 300
 ################### figure 2: dmaxS vs dmaxI
 if !only_plot
     ## run simulation
-    include("scripts/02_dmax_dmax_env_het.jl")
-    include("scripts/02_dmax_dmax_pattern.jl")
+    include("scripts/02_dS_dI_env_het.jl")
+    include("scripts/02_dS_dI_pattern.jl")
 end
 
 ## create the plot
-include("scripts/02_dmax_dmax_plot.jl")
+include("scripts/02_dS_dI_plot.jl")
 ## → the striped patterns were added afterwards with Inkscape
 
 ###################  figure S2: bifurcation of a in local system
