@@ -90,8 +90,8 @@ end
 
 function run_sim_patterns(; nvals)
     ###################### parameters of scenarios
-    dI_vals = 10 .^ LinRange(-3, 1, nvals)
-    dS_vals = 10 .^ LinRange(-3, 1, nvals)
+    dI_vals = 10 .^ LinRange(-2.5, 0.5, nvals)
+    dS_vals = 10 .^ LinRange(-2.5, 0.5, nvals)
     ######################
 
     ###################### outputs
@@ -115,7 +115,7 @@ function run_sim_patterns(; nvals)
         r = 0.5,
         h = 0.5,
         e = 0.33,
-        aS = 1.2,
+        aS = 1.3,
         aI = 1.0,
         dN = 4.0,
         dA = 0.004,

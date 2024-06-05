@@ -5,18 +5,9 @@ using JLD2
 let
     @info "Create figure 2"
     ##############################
-    # turing_bounds = [
-    #     # a = 0.8 [k=0], [k=2]
-    #     [[0.0122, 1.204],[0.0123]],
-    #     # a = 1.0 [k=0], [k=2]
-    #     [[0.0364, 0.5391],[0.0364]],
-    #     # a = 1.2 [k=0], [k=2]
-    #     [[0.0518, 0.4406], [0.0518]],
-    #     # a = 1.3 [k=0], [k=2]
-    #     [[0.0575, 0.4181],[0.0575]],
-    #     # a = 1.5 [k=0], [k=2]
-    #     [[0.0519, 0.4295],[0.1099]]
-    # ]
+    ti_attack = [1,        1.1,      1.2,      1.25,     1.3,      1.4,      1.5]
+    ti1 = [0.195527, 0.217102, 0.236287, 0.244931, 0.252933, 0.26703,  0.278672]
+    ti2 = [0.08636,  0.083894, 0.082123, 0.081458, 0.080921, 0.080188, 0.07984 ]
     ##############################
 
     sim_result = load("simulation_results/02_dS_dI_pattern.jld2")
@@ -37,7 +28,6 @@ let
 
     osc_coexistence = ones(size(cvs))
     osc_coexistence[cvs .< cv_tresh .|| .! coexistence] .= NaN
-
     static_coexistence = ones(size(cvs))
     static_coexistence[cvs .> cv_tresh .|| .! coexistence] .= NaN
 
@@ -52,42 +42,46 @@ let
 
     env_osc_coexistence = ones(size(env_cvs))
     env_osc_coexistence[env_cvs .< cv_tresh .|| .! env_coexistence] .= NaN
-
     env_static_coexistence = ones(size(env_cvs))
     env_static_coexistence[env_cvs .> cv_tresh .|| .! env_coexistence] .= NaN
 
-    # HS_survived_env = env_result["H_density"][:, :, 1] .> coex_thresh
-    # HI_survived_env = env_result["H_density"][:, :, 2] .> coex_thresh
-    # coexistence_env = HS_survived_env .&& HI_survived_env
+    env_coexistence_plot = fill(1, size(env_cvs)...)
+    env_coexistence_plot[.! env_coexistence .&& coexistence] .= 2
 
-    # pattern_coex = coexistence .&& .! coexistence_env
-    # only_hetcoex = coexistence_env .&& .! coexistence
-
-    fig = Figure(; fontsize=22)
+    fig = Figure(; fontsize = 20)
 
 
-    axis_size = 600
+    axis_size = 650
     xticklabels = ["     10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹   "]
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
-    Axis(fig[1, 1];
+
+    Label(fig[0, 1:2], "Self-organised pattern formation",
+        font = "TeX Gyre Heros Makie Bold", fontsize = 22)
+    Label(fig[1, 1], "osc. TI"; halign = :left)
+    Label(fig[1, 1], "static TI"; halign = :right)
+    Label(fig[1, 1], "          no TI"; halign = :center)
+
+    Label(fig[2, 2], "static TI"; valign = :top, rotation = -pi/2)
+    Label(fig[2, 2], "osc. TI"; valign = :bottom, rotation = -pi/2)
+    Label(fig[2, 2], "no TI        "; valign = :center, rotation = -pi/2)
+
+
+    Axis(fig[2, 1];
         width = axis_size, height = axis_size,
-        title = "Self-organised pattern formation",
-        backgroundcolor=(:white,1),
-        xscale=log10,
-        yscale=log10,
-        xticks = (10.0 .^ (-3:1), xticklabels),
-        yticks = (10.0 .^ (-3:1), yticklabels),
+        topspinevisible = false,
+        rightspinevisible = false,
+        xscale = log10,
+        yscale = log10,
+        xticks = (10.0 .^ (-3.0:1.0), xticklabels),
+        yticks = (10.0 .^ (-3.0:1.0), yticklabels),
         xminorticksvisible = true,
         xminorticks = IntervalsBetween(9),
         yminorticksvisible = true,
         yminorticks = IntervalsBetween(9),
-        xgridvisible=false, ygridvisible=false,
-        limits=(1e-3, 1e1, 1e-3, 1e1),
+        xgridvisible = false, ygridvisible = false,
+        limits = (10 ^ -2.5, 10 ^ 0.5, 10 ^ - 2.5,  10 ^ 0.5),
         xlabel = "dispersal rate of the superior competitor dS",
-        ylabel = "dispersal rate of the inferior competitor dI",
-        aspect = DataAspect()
-    )
-
+        ylabel = "dispersal rate of the inferior competitor dI")
     heatmap!(
         dS, dI,
         osc_coexistence',
@@ -96,26 +90,61 @@ let
         dS, dI,
         static_coexistence',
         colormap=[:lightblue])
+    contour!(
+        dS, dI,
+        env_coexistence_plot',
+        colormap=[:red])
+    contourf!(
+        dS, dI,
+        env_coexistence_plot',
+        colormap=[(:black, 0.0), (:black, 0.3)])
+    vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
+    vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
+    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    text!([1e-2, 1], [0.45, 1]; text = ["Bet hedging", "Maladaptive\ndispersal"],
+        align = (:center, :center))
+    text!([0.0035], [3]; text = "A",
+        fontsize = 26,
+        font = "Computer Modern Sans Serif 14 Bold",
+        align = (:left, :top),
+        color = :black)
 
-    Axis(fig[1, 2];
-        width = axis_size, height = axis_size,
-        title = "Predefined habitat heterogeneity",
-        backgroundcolor=(:white,1),
+    Legend(fig[1:2, 3],
+           [[MarkerElement(color = (:black, 0.3), marker = :rect, markersize = 30,
+                markerstrokewidth = 1.5, markerstrokecolor = :red)],
+           [MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
+           MarkerElement(color = :blue, marker = :rect, markersize = 30)],
+           [LineElement(linestyle = :dash), LineElement(linestyle = :dot)]],
+           [["Coexistence only possible\nwith self-organised\npattern formation"],
+           ["with static dynamic", "with oscillatory dynamic"],
+            ["of superior competitor",
+            "of inferior competitor"]],
+            ["", "Coexistence", "Turing boundaries"],
+           framevisible = true,
+           gridshalign = :left, valign = :top,
+           titlehalign = :left,
+           groupgap = 20, rowgap = 5, patchlabelgap = 10)
+
+    Axis(fig[2, 2:3];
+        title = "Environmental habitat\nheterogeneity",
+        alignmode = Outside(),
+        width = axis_size / 3, height = axis_size / 3,
+        valign = :bottom,
+        topspinevisible = false,
+        rightspinevisible = false,
         xscale=log10,
         yscale=log10,
-        xticks = (10.0 .^ (-3:1), xticklabels),
-        yticks = (10.0 .^ (-3:1), yticklabels),
+        xticks = (10.0 .^ (-3.0:1.0), xticklabels),
+        yticks = (10.0 .^ (-3.0:1.0), yticklabels),
         xminorticksvisible = true,
         xminorticks = IntervalsBetween(9),
         yminorticksvisible = true,
         yminorticks = IntervalsBetween(9),
-        xgridvisible=false, ygridvisible=false,
-        limits=(1e-3, 1e1, 1e-3, 1e1),
-        xlabel = "dispersal rate of the superior competitor dS",
-        ylabel = "dispersal rate of the inferior competitor dI",
-        aspect = DataAspect()
-    )
-
+        xgridvisible = false, ygridvisible = false,
+        limits=(10 ^ -2.5, 10 ^ 0.5, 10 ^ - 2.5,  10 ^ 0.5),
+        xlabel = L"d_S",
+        ylabel = L"d_I")
     heatmap!(
         dS, dI,
         env_osc_coexistence',
@@ -124,85 +153,25 @@ let
         dS, dI,
         env_static_coexistence',
         colormap=[:lightblue])
+    vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
+    vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
+    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    text!([0.004], [3]; text = "B",
+        fontsize = 24,
+        font = "Computer Modern Sans Serif 14 Bold",
+        align = (:left, :top),
+        color = :black)
 
-
-    Legend(fig[1, 3],
-           [MarkerElement(color = :blue, marker = :rect, markersize = 30),
-           MarkerElement(color = :lightblue, marker = :rect, markersize = 30)],
-           [" Coexistence\n with oscillatory dynamic",
-            " Coexistence\n with static dynamic"],
-           framevisible = false)
-
-
+    rowgap!(fig.layout, 1, 0)
+    rowgap!(fig.layout, 2, 0)
+    colgap!(fig.layout, 1, 0)
+    colgap!(fig.layout, 2, 25)
     resize_to_layout!(fig)
-    # heatmap!(
-    #     dS,
-    #     dI,
-    #     .! pattern_coex',
-    #     colormap=(:greys, 0.2))
-    # contour!(
-    #     dS,
-    #     dI,
-    #     .! pattern_coex',
-    #     levels=2,
-    #     color=(:white, 1))
 
-    ###### superior competitor
-    # S_bounds = turing_bounds[aS_val .== [0.8, 1.0, 1.2, 1.3, 1.5]][1][kS_val .== [0.0, 2.0]][1]
-
-    # for b in S_bounds
-    #     lines!([b,b], [1e-3, 1e1];
-    #         color=:grey,
-    #         linewidth=2)
-    # end
-    # band!(S_bounds, [1e-3, 1e-3], [1e1, 1e1];
-    #     color=(:grey, 0.3),
-    #     linewidth=4)
-
-    # text!(facet_letter[u];
-    #     fontsize = 26,
-    #     font = "Computer Modern Sans Serif 14 Bold",
-    #     position = (1.2e-3, 8),
-    #     align = (:left, :top),
-    #     color = :black
-    # )
-
-
-
-    ##########
-    # Label(fig[1, 2:3], "Sensitivity of the heterotrophs")
-    # top_labels = [L"k_S = 0,\; k_I = 0", L"k_S = 0,\;k_I = 2"]
-    # for i in 1:2
-    #     Box(fig[2,i+1], color = :gray95, strokevisible=true)
-    #     Label(fig[2, i+1], top_labels[i],
-    #         alignmode=Outside(5),
-    #         tellwidth=false,
-    #         fontsize=24)
-    # end
-
-    # ##########
-    # Label(fig[3, 1], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad d_{max,I}",
-    #     rotation=pi/2,
-    #     tellheight=false,
-    #     fontsize=24)
-    # Label(fig[3, 1], "Max. dispersal rate of the inferior competitor        ",
-    #     tellheight=false,
-    #     rotation=pi/2)
-
-    # ##########
-    # Label(fig[4, 2:3],
-    #     L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\;\;\; d_{max,S}",
-    #     fontsize=24)
-    # Label(fig[4, 2:3], "Maximal dispersal rate of the superior competitor     ")
-
-    # [rowgap!(fig.layout, i, s) for (i,s) in enumerate([5, 0, 10])]
-    # [colgap!(fig.layout, i, s) for (i,s) in enumerate([10, 5])]
-    # rowsize!(fig.layout, 3, Aspect(2, 1))
-
-    # resize_to_layout!(fig)
     display(fig)
 
-    save("figures/02_dS_dI.png", fig;)
+    save("figures/02_dS_dI.png", fig; px_pet_unit = 4)
 
     nothing
 end

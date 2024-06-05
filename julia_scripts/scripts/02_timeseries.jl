@@ -1,6 +1,7 @@
 using OrdinaryDiffEq
 using UnPack
 using Statistics
+using CairoMakie
 import Tables
 import ComponentArrays as ca
 
@@ -62,12 +63,12 @@ let
         r = 0.5,
         h = 0.5,
         e = 0.33,
-        aS = 1.2,
+        aS = 1.3,
         aI = 1.0,
         dN = 4.0,
         dA = 0.004,
-        dS = 0.001,  # change!
-        dI = 0.2  # change!
+        dS = 10.0,  # change!
+        dI = 0.00001 # change!
     )
 
     u0_onlyS = ca.ComponentArray(
