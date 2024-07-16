@@ -1,179 +1,120 @@
 using CairoMakie
 using JLD2
 
+
 let
     @info "Create figure S10"
-
     ##############################
-    turing_bounds = [
-        # a = 0.8 [k=0], [k=2]
-        [[0.0122, 1.204],[0.0123]],
-        # a = 1.0 [k=0], [k=2]
-        [[0.0364, 0.5391],[0.0364]],
-        # a = 1.2 [k=0], [k=2]
-        [[0.0518, 0.4406], [0.0518]],
-        # a = 1.3 [k=0], [k=2]
-        [[0.0575, 0.4181],[0.0575]],
-        # a = 1.5 [k=0], [k=2]
-        [[0.0519, 0.4295],[0.1099]]
-    ]
+    ti_attack = [1.0, 1.3]
+    ti1 = [0.308134,  0.252933]
+    ti2 = [0.048367,  0.080921]
     ##############################
 
     sim_result = load("simulation_results/S10_pattern.jld2")
-    Iinvader_result = load("simulation_results/02_dmax_dmax.jld2")
-    dmaxS = sim_result["dmaxS_vals"]
-    dmaxI = sim_result["dmaxI_vals"]
+    dS = sim_result["dS_vals"]
+    dI = sim_result["dI_vals"]
+    @show dS
+    coex_thresh = 1e-10
+    cv_tresh = 0.2
 
+    #### pattern formation
+    HS_survived = sim_result["H_density"][:, :, 1] .> coex_thresh
+    HI_survived = sim_result["H_density"][:, :, 2] .> coex_thresh
+    coexistence = HS_survived .&& HI_survived
+
+    cvs = sim_result["cvs"][:, :]
+    cvs[isnan.(cvs)] .= 0.0
+
+    osc_coexistence = ones(size(cvs))
+    osc_coexistence[cvs .< cv_tresh .|| .! coexistence] .= NaN
+    static_coexistence = ones(size(cvs))
+    static_coexistence[cvs .> cv_tresh .|| .! coexistence] .= NaN
+
+    fig = Figure(; fontsize = 20)
+
+    axis_size = 650
     xticklabels = ["     10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹   "]
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
 
-    fig = Figure(;
-        resolution=(900, 1),
-        fontsize=22)
+    Label(fig[2, 2], "osc. TI"; halign = :left)
+    Label(fig[2, 2], "static TI"; halign = :right)
+    Label(fig[2, 2], "          no TI"; halign = :center)
 
-    sce = 0
-    facet_letter = ["A", "B"]
+    Label(fig[3, 3], "static TI"; valign = :top, rotation = -pi/2)
+    Label(fig[3, 3], "osc. TI"; valign = :bottom, rotation = -pi/2)
+    Label(fig[3, 3], "no TI        "; valign = :center, rotation = -pi/2)
 
-    for u in 1:2
-        sce += 1
+    Axis(fig[3, 2];
+        width = axis_size, height = axis_size,
+        topspinevisible = false,
+        rightspinevisible = false,
+        xscale = log10,
+        yscale = log10,
+        xticks = (10.0 .^ (-3.0:1.0), xticklabels),
+        yticks = (10.0 .^ (-3.0:1.0), yticklabels),
+        xminorticksvisible = true,
+        xminorticks = IntervalsBetween(9),
+        yminorticksvisible = true,
+        yminorticks = IntervalsBetween(9),
+        xgridvisible = false, ygridvisible = false,
+        limits = (10 ^ -2.5, 10 ^ 0.5, 10 ^ - 2.5,  10 ^ 0.5))
 
-        coex_thresh = 1e-10
-        HS_survived = sim_result["H_density"][:, :, sce, 1] .>= coex_thresh
-        HI_survived = sim_result["H_density"][:, :, sce, 2] .>= coex_thresh
-        coexistence = HS_survived .&& HI_survived
-
-        cvs = sim_result["cvs"][:, :, sce]
-        cvs[isnan.(cvs)] .= 0.0
-        cv_tresh = 0.3
-
-        osc_coexistence = ones(size(cvs))
-        osc_coexistence[cvs .> cv_tresh] .= 0
-        osc_coexistence[.! coexistence] .= 1
-        osc_heat = ones(size(osc_coexistence))
-        osc_heat[iszero.(osc_coexistence)] .= NaN
-
-        static_coexistence = ones(size(cvs))
-        static_coexistence[cvs .< cv_tresh] .= 0
-        static_coexistence[.! coexistence] .= 1
-        static_heat = ones(size(static_coexistence))
-        static_heat[iszero.(static_coexistence)] .= NaN
-
-
-        ###### compare: HI is the invader
-        I_HS_survived = Iinvader_result["H_density"][:, :, sce, 1] .>= coex_thresh
-        I_HI_survived = Iinvader_result["H_density"][:, :, sce, 2] .>= coex_thresh
-        I_coexistence = I_HS_survived .&& I_HI_survived
-        change_f = I_coexistence .&& .! coexistence
-        diff = .! change_f
-
-
-        Axis(fig[3,1+u];
-            backgroundcolor=(:white,1),
-            xscale=log10,
-            yscale=log10,
-            xticks = (10.0 .^ (-3:1), xticklabels),
-            yticks = (10.0 .^ (-3:1), yticklabels),
-            xminorticksvisible = true,
-            xminorticks = IntervalsBetween(9),
-            yminorticksvisible = true,
-            yminorticks = IntervalsBetween(9),
-            yticklabelsvisible = u == 1 ? true : false,
-            xgridvisible=false, ygridvisible=false,
-            limits=(1e-3, 1e1, 1e-3, 1e1)
-        )
-
-        contourf!(
-            dmaxS, dmaxI,
-            osc_coexistence',
-            levels=2,
-            colormap=[Makie.RGB(45/255,175/255,20/255)])
-        contourf!(
-            dmaxS, dmaxI,
-            static_coexistence',
-            levels=2,
-            colormap=[:blue1])
-
-        contourf!(
-            dmaxS, dmaxI,
-            diff',
-            levels=2,
-            colormap=[:red])
-        ###### superior competitor
-        aS_val = 1.2
-        kS_val = 0
-        S_bounds = turing_bounds[aS_val .== [0.8, 1.0, 1.2, 1.3, 1.5]][1][kS_val .== [0.0, 2.0]][1]
-
-        for b in S_bounds
-            lines!([b,b], [1e-3, 1e1];
-                color=:grey,
-                linewidth=2)
-        end
-        band!(S_bounds, [1e-3, 1e-3], [1e1, 1e1];
-            color=(:grey, 0.3),
-            linewidth=4)
-
-        ###### inferior competitor
-        aI_val = 1.0
-        kI_val = isone(sce) ? 0.0 : 2.0
-        I_bounds = turing_bounds[aI_val .== [0.8, 1.0, 1.2, 1.3, 1.5]][1][kI_val .== [0.0, 2.0]][1]
-
-        for b in I_bounds
-            lines!([1e-3, 1e1], [b,b];
-                color=:black,
-                linewidth=2,
-                linestyle=:dash)
-        end
-        yupper = isone(length(I_bounds)) ? [1e1] : I_bounds[2]
-        band!([1e-3, 1e1], I_bounds[1], yupper;
-            color=(:white, 0.6),
-            linewidth=4)
+    heatmap!(
+        dS, dI,
+        osc_coexistence',
+        colormap=[:blue])
+    heatmap!(
+        dS, dI,
+        static_coexistence',
+        colormap=[:lightblue])
+    vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
+    vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
+    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    text!([1e-2, 1], [0.45, 1]; text = ["bet-hedging", "maladaptive\ndispersal"],
+        align = (:center, :center))
 
 
-        text!(facet_letter[u];
-            fontsize = 26,
-            font = "Computer Modern Sans Serif 14 Bold",
-            position = (1.2e-3, 8),
-            align = (:left, :top),
-            color = :black
-        )
+    Legend(fig[3, 4],
+           [[MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
+           MarkerElement(color = :blue, marker = :rect, markersize = 30)],
+           [LineElement(linestyle = :dash), LineElement(linestyle = :dot)]],
+           [["with static dynamics", "with oscillatory dynamics"],
+            ["of superior competitor",
+            "of inferior competitor"]],
+            ["Coexistence", "Turing boundaries"],
+           framevisible = true,
+           gridshalign = :left,
+           titlehalign = :left,
+           groupgap = 20, rowgap = 5, patchlabelgap = 10, tellheight = true)
 
-        # scatter!(
-        #     0.5, 0.2;
-        #     color=:red, marker=:star8)
-    end
 
-    ##########
-    Label(fig[1, 2:3], "Sensitivity of the heterotrophs")
-    top_labels = [L"k_S = 0,\; k_I = 0", L"k_S = 0,\;k_I = 2"]
-    for i in 1:2
-        Box(fig[2,i+1], color = :gray95, strokevisible=true)
-        Label(fig[2, i+1], top_labels[i],
-            alignmode=Outside(5),
-            tellwidth=false,
-            fontsize=24)
-    end
+    ylabellayout = GridLayout(fig[3, 1])
+    xlabellayout = GridLayout(fig[4, 2])
 
-    ##########
-    Label(fig[3, 1], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad d_{max,I}",
-        rotation=pi/2,
-        tellheight=false,
-        fontsize=24)
-    Label(fig[3, 1], "Max. dispersal rate of the inferior competitor        ",
-        tellheight=false,
-        rotation=pi/2)
+    Label(ylabellayout[2, 1], "dispersal rate of the inferior competitor",
+        rotation = pi/2)
+    Label(ylabellayout[1, 1], L"d_I",
+        rotation = pi/2)
+    Label(xlabellayout[1, 1], "dispersal rate of the superior competitor")
+    Label(xlabellayout[1, 2], L"d_S")
 
-    ##########
-    Label(fig[4, 2:3], L"\text{ }\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\;\;\; d_{max,S}",
-        fontsize=24)
-    Label(fig[4, 2:3], "Maximal dispersal rate of the superior competitor     ")
+    rowgap!(fig.layout, 1, 0)
+    rowgap!(fig.layout, 2, 0)
+    rowgap!(fig.layout, 3, 5)
+    colgap!(fig.layout, 1, 5)
+    colgap!(fig.layout, 2, 0)
+    colgap!(fig.layout, 3, 25)
 
-    [rowgap!(fig.layout, i, s) for (i,s) in enumerate([5, 0, 10])]
-    [colgap!(fig.layout, i, s) for (i,s) in enumerate([10, 5])]
-    rowsize!(fig.layout, 3, Aspect(2, 1))
+    rowgap!(ylabellayout, 1, 7)
+    colgap!(xlabellayout, 1, 7)
+
 
     resize_to_layout!(fig)
+
+    # save("figures/02_dS_dI_1.png", fig; px_per_unit = 10)
+
     display(fig)
 
-    save("figures/S10_dmax_dmax.pdf", fig;)
     nothing
 end
