@@ -10,14 +10,11 @@ let
     ti2 = [0.048367,  0.080921]
     ##############################
 
-    sim_result = load("simulation_results/S10_pattern.jld2")
-    dS = sim_result["dS_vals"]
-    dI = sim_result["dI_vals"]
-    @show dS
     coex_thresh = 1e-10
     cv_tresh = 0.2
 
-    #### pattern formation
+    #### S invader
+    sim_result = load("simulation_results/S10_pattern.jld2")
     HS_survived = sim_result["H_density"][:, :, 1] .> coex_thresh
     HI_survived = sim_result["H_density"][:, :, 2] .> coex_thresh
     coexistence = HS_survived .&& HI_survived
@@ -29,6 +26,25 @@ let
     osc_coexistence[cvs .< cv_tresh .|| .! coexistence] .= NaN
     static_coexistence = ones(size(cvs))
     static_coexistence[cvs .> cv_tresh .|| .! coexistence] .= NaN
+
+    #### I invader
+    sim_result_I_invader = load("simulation_results/02_dS_dI_pattern.jld2")
+
+    HS_survived_I_invader = sim_result_I_invader["H_density"][:, :, 1] .> coex_thresh
+    HI_survived_I_invader  = sim_result_I_invader["H_density"][:, :, 2] .> coex_thresh
+    coexistence_I_invader = HS_survived_I_invader .&& HI_survived_I_invader
+
+    #### diff between results
+    coexistence_only_I_invader = fill(NaN, size(cvs))
+    coexistence_only_I_invader[.! coexistence .& coexistence_I_invader] .= 1.0
+
+    coexistence_only_S_invader = fill(NaN, size(cvs))
+    coexistence_only_S_invader[coexistence .& .! coexistence_I_invader] .= 1.0
+
+
+    ####
+    dS = sim_result["dS_vals"]
+    dI = sim_result["dI_vals"]
 
     fig = Figure(; fontsize = 20)
 
@@ -67,22 +83,36 @@ let
         dS, dI,
         static_coexistence',
         colormap=[:lightblue])
+
     vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
     vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
-    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
-    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot,
+            linewidth = 3.0)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot,
+            linewidth = 3.0)
     text!([1e-2, 1], [0.45, 1]; text = ["bet-hedging", "maladaptive\ndispersal"],
         align = (:center, :center))
 
+    heatmap!(
+        dS, dI,
+        coexistence_only_I_invader',
+        colormap=[:orange])
+    heatmap!(
+        dS, dI,
+        coexistence_only_S_invader',
+        colormap=[:red])
 
     Legend(fig[3, 4],
-           [[MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
-           MarkerElement(color = :blue, marker = :rect, markersize = 30)],
-           [LineElement(linestyle = :dash), LineElement(linestyle = :dot)]],
-           [["with static dynamics", "with oscillatory dynamics"],
+           [[MarkerElement(color = :red, marker = :rect, markersize = 30),
+             MarkerElement(color = :orange, marker = :rect, markersize = 30)],
+            [MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
+             MarkerElement(color = :blue, marker = :rect, markersize = 30)],
+            [LineElement(linestyle = :dash), LineElement(linestyle = :dot, linewidth = 3.0)]],
+           [["the superior competitor\nis the invader", "the inferior competitor\nis the invader"],
+            ["with static dynamics", "with oscillatory dynamics"],
             ["of superior competitor",
             "of inferior competitor"]],
-            ["Coexistence", "Turing boundaries"],
+            ["Coexistence only if" ,"Coexistence in both\ninvasion scenarios", "Turing boundaries"],
            framevisible = true,
            gridshalign = :left,
            titlehalign = :left,
@@ -112,7 +142,7 @@ let
 
     resize_to_layout!(fig)
 
-    # save("figures/02_dS_dI_1.png", fig; px_per_unit = 10)
+    save("figures/S10_new.png", fig; px_per_unit = 10)
 
     display(fig)
 

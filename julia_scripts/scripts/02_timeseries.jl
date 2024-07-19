@@ -53,7 +53,7 @@ let
     ######################
     tspan_onlyS = (0.0, 10_000.0)
     tsave_onlyS = 9_500.0:10_000.0
-    tsave = 0.0:5000.0    # change!
+    tsave = 4000.0:5000.0    # change!
     tspan = (0.0, maximum(tsave))
     ######################
 
@@ -64,11 +64,11 @@ let
         h = 0.5,
         e = 0.33,
         aS = 1.3,
-        aI = 1.0,
+        aI = 1.28,
         dN = 4.0,
         dA = 0.004,
-        dS = 10.0,  # change!
-        dI = 0.00001 # change!
+        dS = 0.005,  # change!
+        dI = 0.15 # change!
     )
 
     u0_onlyS = ca.ComponentArray(
