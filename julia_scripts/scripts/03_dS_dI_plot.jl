@@ -1,9 +1,10 @@
 using CairoMakie
 using JLD2
 
+set_theme!(Lines = (linewidth = 3))
 
 let
-    @info "Create figure 2"
+    @info "Create figure 3"
     ##############################
     ti_attack = [1.0, 1.3]
     ti1 = [0.308134,  0.252933]
@@ -123,12 +124,13 @@ let
         [MarkerElement(color = (:black, 0.3), marker = :rect, markersize = 30,
             markerstrokewidth = 1.5, markerstrokecolor = :red)],
         ["Coexistence only possible\nwith self-organised\npattern formation due to\nheterogeneity modulation"],
-        framevisible = false, ,
+        framevisible = false,
         patchlabelgap = 10, tellheight = true)
     Legend(legend_layout[2, 1],
            [[MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
            MarkerElement(color = :blue, marker = :rect, markersize = 30)],
-           [LineElement(linestyle = :dash), LineElement(linestyle = :dot)]],
+           [LineElement(linestyle = :dash),
+            LineElement(linestyle = :dot, linewidth = 3.0)]],
            [["with static dynamics", "with oscillatory dynamics"],
             ["of superior competitor",
             "of inferior competitor"]],
@@ -200,7 +202,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/02_dS_dI_1.png", fig; px_per_unit = 10)
+    save("figures/03_dS_dI.png", fig; px_per_unit = 10)
 
     display(fig)
 
