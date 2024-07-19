@@ -25,6 +25,25 @@ function only_superior!(du, u, p, t)
 end
 
 
+function only_inferior!(du,u,p,t)
+    ### states
+    @unpack Nx_star, Ny_star, Ax_star, Ay_star, Ix_star, Iy_star = u
+
+    ### parameters
+    @unpack S, D, r, h, e, aI, dN, dA, dI = p
+
+    ### first system
+    gx = aI*Ax_star/(1+aI*h*Ax_star)
+    gy = aI*Ay_star/(1+aI*h*Ay_star)
+
+    du.Nx_star = D*S -D*Nx_star -r*Ax_star*Nx_star +dN*(Ny_star-Nx_star)
+    du.Ny_star = D*S -D*Ny_star -r*Ay_star*Ny_star +dN*(Nx_star-Ny_star)
+    du.Ax_star = r*Ax_star*Nx_star -gx*Ix_star -D*Ax_star +dA*(Ay_star-Ax_star)
+    du.Ay_star = r*Ay_star*Ny_star -gy*Iy_star -D*Ay_star +dA*(Ax_star-Ay_star)
+    du.Ix_star = e*gx*Ix_star -D*Ix_star +dI*(Iy_star-Ix_star)
+    du.Iy_star = e*gy*Iy_star -D*Iy_star +dI*(Ix_star-Iy_star)
+end
+
 function both_competitors!(du,u,p,t)
     ### states
     @unpack Nx, Ny, Ax, Ay, Sx, Sy, Ix, Iy = u
@@ -49,14 +68,32 @@ function both_competitors!(du,u,p,t)
 end
 
 
+function local_cb(;local_threshold)
+    some_negative = function (u,t,integrator)
+        return any(u .< local_threshold .&& u .!= 0.0)
+    end
+
+    cb_affect! = function (integrator)
+        integrator.u[integrator.u .< local_threshold] .= 0.0
+    end
+
+    return DiscreteCallback(
+        some_negative,
+        cb_affect!;
+        save_positions=(false, false))
+end
+
 let
     ######################
     tspan_onlyS = (0.0, 10_000.0)
     tsave_onlyS = 9_500.0:10_000.0
-    tsave = 4000.0:5000.0    # change!
+    tspan_onlyI = (0.0, 10_000.0)
+    tsave_onlyI = 9_500.0:10_000.0
+    tsave = 1.0:100_000.0    # change!
     tspan = (0.0, maximum(tsave))
-    ######################
+    S_invader = false
 
+    ######################
     p = (
         S = 5.0,
         D = 0.3,
@@ -64,51 +101,58 @@ let
         h = 0.5,
         e = 0.33,
         aS = 1.3,
-        aI = 1.28,
+        aI = 1.2608695652173914,
         dN = 4.0,
         dA = 0.004,
-        dS = 0.005,  # change!
-        dI = 0.15 # change!
+        dS = 1.0,  # change!
+        dI = 0.9082261036005619 # change!
     )
 
-    u0_onlyS = ca.ComponentArray(
-        Nx_star=7.0, Ny_star=2.0,
-        Ax_star=1.0, Ay_star=1.0,
-        Sx_star=0.2, Sy_star=0.1
-    )
+    #########################################
+    u0_final = nothing
+    if S_invader
+        u0_onlyI = ca.ComponentArray(
+            Nx_star=7.0, Ny_star=2.0,
+            Ax_star=1.0, Ay_star=1.0,
+            Ix_star=0.2, Iy_star=0.1)
+        prob_onlyI = ODEProblem(only_inferior!, u0_onlyI, tspan_onlyI, p;)
+        sol_onlyI = solve(prob_onlyI, Vern9(); saveat=tsave_onlyI,
+                        reltol=1e-12, abstol=1e-12, maxiters=1e20);
+        u_onlyI = Tables.columntable(sol_onlyI.u);
+        u0_final = ca.ComponentArray(;
+            Nx=u_onlyI.Nx_star[end],
+            Ny=u_onlyI.Ny_star[end],
+            Ax=u_onlyI.Ax_star[end],
+            Ay=u_onlyI.Ay_star[end],
+            Ix=u_onlyI.Ix_star[end],
+            Iy=u_onlyI.Iy_star[end],
+            Sx=0.001, Sy=0.0001)
+    else
+        u0_onlyS = ca.ComponentArray(
+            Nx_star=7.0, Ny_star=2.0,
+            Ax_star=1.0, Ay_star=1.0,
+            Sx_star=0.2, Sy_star=0.1)
+        prob_onlyS = ODEProblem(only_superior!, u0_onlyS, tspan_onlyS, p;)
+        sol_onlyS = solve(prob_onlyS, Vern9(); saveat=tsave_onlyS,
+                        reltol=1e-12, abstol=1e-12, maxiters=1e20);
+        u_onlyS = Tables.columntable(sol_onlyS.u);
+        u0_final = ca.ComponentArray(;
+            Nx=u_onlyS.Nx_star[end],
+            Ny=u_onlyS.Ny_star[end],
+            Ax=u_onlyS.Ax_star[end],
+            Ay=u_onlyS.Ay_star[end],
+            Sx=u_onlyS.Sx_star[end],
+            Sy=u_onlyS.Sy_star[end],
+            Ix=0.001, Iy=0.0001)
+    end
+    #########################################
 
-    prob_onlyS = ODEProblem(
-            only_superior!,
-            u0_onlyS,
-            tspan_onlyS,
-            p;)
-    sol_onlyS = solve(prob_onlyS, Vern9();
-        saveat=tsave_onlyS,
-        reltol=1e-12,
-        abstol=1e-12,
-        maxiters=1e20);
-    u_onlyS = Tables.columntable(sol_onlyS.u);
+    ###################### Callback
+    cb = local_cb(; local_threshold=1e-30)
+    ######################
 
-    u0_final = ca.ComponentArray(;
-        Nx=u_onlyS.Nx_star[end],
-        Ny=u_onlyS.Ny_star[end],
-        Ax=u_onlyS.Ax_star[end],
-        Ay=u_onlyS.Ay_star[end],
-        Sx=u_onlyS.Sx_star[end],
-        Sy=u_onlyS.Sy_star[end],
-        Ix=0.001, Iy=0.0001
-    )
-
-    prob = ODEProblem(
-        both_competitors!,
-        u0_final,
-        tspan,
-        p;)
-    sol = solve(prob, Vern9();
-        saveat=tsave,
-        reltol=1e-12,
-        abstol=1e-12,
-        maxiters=1e20);
+    prob = ODEProblem(both_competitors!, u0_final, tspan, p; )
+    sol = solve(prob, Vern9(); saveat=tsave, reltol=1e-12, abstol=1e-12, maxiters=1e20);
     u = Tables.columntable(sol.u);
 
 
@@ -151,6 +195,8 @@ let
         end
         Legend(fig[1, 2], ax1; framevisible = false)
 
+
+        save("test.png", fig)
         fig
     end
 end

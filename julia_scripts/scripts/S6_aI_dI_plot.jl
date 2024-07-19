@@ -13,11 +13,14 @@ let
     sTI = CSV.read("simulation_results/sTI_boundary.txt", Tables.matrix)
     ##############################
 
+    color_osc = :dodgerblue1
+    color_static = :lightblue
+
     axis_size = 500
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
 
     coex_thresh = 1e-10
-    cv_tresh = 0.06 # usually we take 0.2
+    cv_tresh = 0.1 # usually we take 0.2
     dS_vals = [0.005, 1.0]
 
     fig = Figure(; fontsize = 20)
@@ -59,8 +62,8 @@ let
                                    color = Makie.LinePattern())
 
         heatmap!(aI, dI, only_S_survided, colormap=[:white])
-        heatmap!(aI, dI, osc_coexistence, colormap=[:blue])
-        heatmap!(aI, dI, static_coexistence, colormap=[:lightblue])
+        heatmap!(aI, dI, osc_coexistence, colormap=[color_osc])
+        heatmap!(aI, dI, static_coexistence, colormap=[color_static])
 
         lines!(oTI[:, 1], oTI[:, 2]; color = :black, linestyle = :dot,
                linewidth = 3.0)
@@ -80,8 +83,8 @@ let
     Label(fig[3, 4], "no TI        "; valign = :center, rotation = -pi/2)
 
     Legend(fig[3, 5],
-        [[MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
-          MarkerElement(color = :blue, marker = :rect, markersize = 30)],
+        [[MarkerElement(color = color_static, marker = :rect, markersize = 30),
+          MarkerElement(color = color_osc, marker = :rect, markersize = 30)],
           [MarkerElement(color = :white, marker = :rect, markersize = 30,
                          strokecolor = :black, strokewidth = 0.1),
           box_element],
@@ -122,7 +125,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/S6_new.png", fig; px_per_unit = 10)
+    save("figures/S6_aI_dI.png", fig; px_per_unit = 10)
 
     display(fig)
 

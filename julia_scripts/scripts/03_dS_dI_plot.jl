@@ -1,8 +1,11 @@
 using CairoMakie
 using JLD2
 
-set_theme!(Lines = (linewidth = 3))
+set_theme!(VLines = (; linewidth = 3),
+           Hlines = (; linewidth = 3),
+           Lines = (; linewidth = 3))
 
+set_theme!()
 let
     @info "Create figure 3"
     ##############################
@@ -10,6 +13,9 @@ let
     ti1 = [0.308134,  0.252933]
     ti2 = [0.048367,  0.080921]
     ##############################
+
+    color_osc = :dodgerblue1
+    color_static = :lightblue
 
     sim_result = load("simulation_results/02_dS_dI_pattern.jld2")
     env_result = load("simulation_results/02_dS_dI_env_het.jld2")
@@ -58,12 +64,12 @@ let
 
     Label(fig[1, 2], "Self-organised pattern formation",
         font = "TeX Gyre Heros Makie Bold", fontsize = 22)
-    Label(fig[2, 2], "osc. TI"; halign = :left)
-    Label(fig[2, 2], "static TI"; halign = :right)
+    Label(fig[2, 2], "                       osc. TI"; halign = :left)
+    Label(fig[2, 2], "static TI               "; halign = :right)
     Label(fig[2, 2], "          no TI"; halign = :center)
 
-    Label(fig[3, 3], "static TI"; valign = :top, rotation = -pi/2)
-    Label(fig[3, 3], "osc. TI"; valign = :bottom, rotation = -pi/2)
+    Label(fig[3, 3], "              static TI"; valign = :top, rotation = -pi/2)
+    Label(fig[3, 3], "osc. TI               "; valign = :bottom, rotation = -pi/2)
     Label(fig[3, 3], "no TI        "; valign = :center, rotation = -pi/2)
 
 
@@ -85,11 +91,11 @@ let
     heatmap!(
         dS, dI,
         osc_coexistence',
-        colormap=[:blue])
+        colormap=[color_osc])
     heatmap!(
         dS, dI,
         static_coexistence',
-        colormap=[:lightblue])
+        colormap=[color_static])
     contour!(
         dS, dI,
         env_coexistence_plot',
@@ -127,13 +133,13 @@ let
         framevisible = false,
         patchlabelgap = 10, tellheight = true)
     Legend(legend_layout[2, 1],
-           [[MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
-           MarkerElement(color = :blue, marker = :rect, markersize = 30)],
+           [[MarkerElement(color = color_static, marker = :rect, markersize = 30),
+           MarkerElement(color = color_osc, marker = :rect, markersize = 30)],
            [LineElement(linestyle = :dash),
-            LineElement(linestyle = :dot, linewidth = 3.0)]],
+            LineElement(linestyle = :dot)]],
            [["with static dynamics", "with oscillatory dynamics"],
-            ["of superior competitor",
-            "of inferior competitor"]],
+            ["of the superior competitor",
+            "of the inferior competitor"]],
             ["Coexistence", "Turing boundaries"],
            framevisible = false,
            gridshalign = :left,
@@ -163,11 +169,11 @@ let
     heatmap!(
         dS, dI,
         env_osc_coexistence',
-        colormap=[:blue])
+        colormap=[color_osc])
     heatmap!(
         dS, dI,
         env_static_coexistence',
-        colormap=[:lightblue])
+        colormap=[color_static])
     vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
     vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
     hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)

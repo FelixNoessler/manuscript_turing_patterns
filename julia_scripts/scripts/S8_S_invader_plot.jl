@@ -3,13 +3,15 @@ using JLD2
 
 
 let
-    @info "Create figure S10"
+    @info "Create figure S8"
     ##############################
     ti_attack = [1.0, 1.3]
     ti1 = [0.308134,  0.252933]
     ti2 = [0.048367,  0.080921]
     ##############################
 
+    color_osc = :dodgerblue1
+    color_static = :lightblue
     coex_thresh = 1e-10
     cv_tresh = 0.2
 
@@ -52,12 +54,12 @@ let
     xticklabels = ["     10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹   "]
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
 
-    Label(fig[2, 2], "osc. TI"; halign = :left)
-    Label(fig[2, 2], "static TI"; halign = :right)
+    Label(fig[2, 2], "                  osc. TI"; halign = :left)
+    Label(fig[2, 2], "static TI                "; halign = :right)
     Label(fig[2, 2], "          no TI"; halign = :center)
 
-    Label(fig[3, 3], "static TI"; valign = :top, rotation = -pi/2)
-    Label(fig[3, 3], "osc. TI"; valign = :bottom, rotation = -pi/2)
+    Label(fig[3, 3], "        static TI"; valign = :top, rotation = -pi/2)
+    Label(fig[3, 3], "osc. TI                  "; valign = :bottom, rotation = -pi/2)
     Label(fig[3, 3], "no TI        "; valign = :center, rotation = -pi/2)
 
     Axis(fig[3, 2];
@@ -78,18 +80,16 @@ let
     heatmap!(
         dS, dI,
         osc_coexistence',
-        colormap=[:blue])
+        colormap=[color_osc])
     heatmap!(
         dS, dI,
         static_coexistence',
-        colormap=[:lightblue])
+        colormap=[color_static])
 
     vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
     vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
-    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot,
-            linewidth = 3.0)
-    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot,
-            linewidth = 3.0)
+    hlines!(ti1[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
     text!([1e-2, 1], [0.45, 1]; text = ["bet-hedging", "maladaptive\ndispersal"],
         align = (:center, :center))
 
@@ -105,9 +105,9 @@ let
     Legend(fig[3, 4],
            [[MarkerElement(color = :red, marker = :rect, markersize = 30),
              MarkerElement(color = :orange, marker = :rect, markersize = 30)],
-            [MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
-             MarkerElement(color = :blue, marker = :rect, markersize = 30)],
-            [LineElement(linestyle = :dash), LineElement(linestyle = :dot, linewidth = 3.0)]],
+            [MarkerElement(color = color_static, marker = :rect, markersize = 30),
+             MarkerElement(color = color_osc, marker = :rect, markersize = 30)],
+            [LineElement(linestyle = :dash), LineElement(linestyle = :dot)]],
            [["the superior competitor\nis the invader", "the inferior competitor\nis the invader"],
             ["with static dynamics", "with oscillatory dynamics"],
             ["of superior competitor",
@@ -142,7 +142,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/S10_new.png", fig; px_per_unit = 10)
+    save("figures/S8_S_invader.png", fig; px_per_unit = 10)
 
     display(fig)
 

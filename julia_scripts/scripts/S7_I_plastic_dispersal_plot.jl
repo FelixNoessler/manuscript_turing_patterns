@@ -3,7 +3,7 @@ using JLD2
 
 
 let
-    @info "Create figure 2"
+    @info "Create figure S7"
     ##############################
     ti_attack = [1.0, 1.3]
     ti1 = [NaN,  0.252933]
@@ -14,6 +14,9 @@ let
     env_result = load("simulation_results/I_with_plastic_dispersal_env_het.jld2")
     dS = sim_result["dS_vals"]
     dmaxI = sim_result["dmaxI_vals"]
+
+    color_osc = :dodgerblue1
+    color_static = :lightblue
 
     coex_thresh = 1e-10
     cv_tresh = 0.2
@@ -57,8 +60,8 @@ let
 
     Label(fig[1, 2], "Self-organised pattern formation",
         font = "TeX Gyre Heros Makie Bold", fontsize = 22)
-    Label(fig[2, 2], "osc. TI"; halign = :left)
-    Label(fig[2, 2], "static TI"; halign = :right)
+    Label(fig[2, 2], "             osc. TI"; halign = :left)
+    Label(fig[2, 2], "static TI           "; halign = :right)
     Label(fig[2, 2], "          no TI"; halign = :center)
 
     Label(fig[3, 3], "osc. TI          "; valign = :bottom, rotation = -pi/2)
@@ -83,11 +86,11 @@ let
     heatmap!(
         dS, dmaxI,
         osc_coexistence',
-        colormap=[:blue])
+        colormap=[color_osc])
     heatmap!(
         dS, dmaxI,
         static_coexistence',
-        colormap=[:lightblue])
+        colormap=[color_static])
     contour!(
         dS, dmaxI,
         env_coexistence_plot',
@@ -98,8 +101,7 @@ let
         colormap=[(:black, 0.0), (:black, 0.3)])
     vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
     vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
-    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot,
-            linewidth = 3.0)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
 
     text!([0.0035], [6]; text = "A",
         fontsize = 30,
@@ -116,13 +118,13 @@ let
         framevisible = false,
         patchlabelgap = 10, tellheight = true)
     Legend(legend_layout[2, 1],
-           [[MarkerElement(color = :lightblue, marker = :rect, markersize = 30),
-           MarkerElement(color = :blue, marker = :rect, markersize = 30)],
+           [[MarkerElement(color = color_static, marker = :rect, markersize = 30),
+             MarkerElement(color = color_osc, marker = :rect, markersize = 30)],
            [LineElement(linestyle = :dash),
-            LineElement(linestyle = :dot, linewidth = 3.0)]],
+            LineElement(linestyle = :dot)]],
            [["with static dynamics", "with oscillatory dynamics"],
-            ["of superior competitor",
-            "of inferior competitor"]],
+            ["of the superior competitor",
+            "of the inferior competitor"]],
             ["Coexistence", "Turing boundaries"],
            framevisible = false,
            gridshalign = :left,
@@ -152,15 +154,14 @@ let
     heatmap!(
         dS, dmaxI,
         env_osc_coexistence',
-        colormap=[:blue])
+        colormap=[color_osc])
     heatmap!(
         dS, dmaxI,
         env_static_coexistence',
-        colormap=[:lightblue])
+        colormap=[color_static])
     vlines!(ti1[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
     vlines!(ti2[findfirst(ti_attack .== 1.3)]; color = :black, linestyle = :dash)
-    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot,
-            linewidth = 3.0)
+    hlines!(ti2[findfirst(ti_attack .== 1.0)]; color = :black, linestyle = :dot)
 
     text!([0.004], [6]; text = "B",
         fontsize = 24,
@@ -192,7 +193,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/I_plastic_dispersal.png", fig; px_per_unit = 10)
+    save("figures/S7_I_plastic_dispersal.png", fig; px_per_unit = 10)
 
     display(fig)
 
