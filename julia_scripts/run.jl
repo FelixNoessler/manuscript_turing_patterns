@@ -1,11 +1,11 @@
 # -----------------------------------------------------------
 # Script Name: Run all julia scripts
-# Purpose: Recreate the figures 2, S2, S6, S7, S8, S10, S11
+# Purpose: Recreate the figures 3, S6, S7, and S8
 # Author: Felix Nößler
-# Date: 2023-11-30
+# Date: 2024-07-22
 # -----------------------------------------------------------
 
-# download julia (simulations were tested with julia 1.9.2 and 1.9.3)
+# download julia (simulations were tested with julia 1.10.4)
 # start julia in the parent folder or in the subfolder julia_scripts/
 
 # Reproducibility of the code and the same version number of the
@@ -13,7 +13,7 @@
 
 # the simulations will be faster by using threads
 # you can start julia with 8 threads: julia --threads 8
-# see: https://docs.julialang.org/en/v1.9.3/manual/multi-threading/
+# see: https://docs.julialang.org/en/v1.10.4/manual/multi-threading/
 
 import Pkg
 
@@ -35,7 +35,6 @@ only_plot = false
 # resolution of the simulation
 # 300 means:
 #  - 300 ⋅ 300 parameter values per heatmap/filled contour plot
-#  - 300 parameter values for the bifucation diagram
 nvals = 300
 
 ################### Figure 3
