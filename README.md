@@ -9,6 +9,7 @@ This repository contains scripts to reproduce the results in the manuscript.
 
 The [`julia_scripts/run.jl`](julia_scripts/run.jl) file can be used to recreate the figures 3, S6, S7 and S8  of the manuscript. This script calls several smaller scripts to run simulations and create the figures. All information how to run the code can be found inside the header of the [`julia_scripts/run.jl`](julia_scripts/run.jl) file.
 
+Additionally, time series can be generated with the script [`julia_scripts/scripts/timeseries.jl`](julia_scripts/scripts/timeseries.jl).
 
 Main author: Felix Nößler
 
