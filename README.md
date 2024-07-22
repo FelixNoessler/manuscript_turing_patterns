@@ -1,7 +1,7 @@
 # Manuscript code for: "Self-organised pattern formation promotes consumer coexistence by fluctuation-dependent mechanisms"
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10233860.svg)](https://doi.org/10.5281/zenodo.10233860)
 
-Authors: Christian Guill, Felix Nößler, and Toni Klauschies
+
+Authors: -
 
 This repository contains scripts to reproduce the results in the manuscript.
 
@@ -11,13 +11,13 @@ The [`julia_scripts/run.jl`](julia_scripts/run.jl) file can be used to recreate 
 
 Additionally, time series can be generated with the script [`julia_scripts/scripts/timeseries.jl`](julia_scripts/scripts/timeseries.jl).
 
-Main author: Felix Nößler
+Main author: -
 
 ## Python Jupyter notebook
 
 The [`supporting_figures.ipynb`](supporting_figures.ipynb) contains the Python code to recreate all other figures.
 
-Main author: Christian Guill
+Main author: -
 
 --- 
 
