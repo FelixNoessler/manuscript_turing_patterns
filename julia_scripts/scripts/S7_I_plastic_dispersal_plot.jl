@@ -1,7 +1,6 @@
 using CairoMakie
 using JLD2
 
-
 let
     @info "Create figure S7"
     ##############################
@@ -10,8 +9,8 @@ let
     ti2 = [2*0.0484,  0.080921]
     ##############################
 
-    sim_result = load("simulation_results/I_with_plastic_dispersal_pattern.jld2")
-    env_result = load("simulation_results/I_with_plastic_dispersal_env_het.jld2")
+    sim_result = load("simulation_results/S7_I_with_plastic_dispersal_pattern.jld2")
+    env_result = load("simulation_results/S7_I_with_plastic_dispersal_env_het.jld2")
     dS = sim_result["dS_vals"]
     dmaxI = sim_result["dmaxI_vals"]
 

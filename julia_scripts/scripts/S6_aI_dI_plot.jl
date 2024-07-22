@@ -7,8 +7,8 @@ let
     @info "Create figure S6"
 
     ##############################
-    scen1 = load("simulation_results/S6_new1.jld2")
-    scen2 = load("simulation_results/S6_new2.jld2")
+    scen1 = load("simulation_results/S6_aI_dI_part1.jld2")
+    scen2 = load("simulation_results/S6_aI_dI_part2.jld2")
     oTI = CSV.read("simulation_results/oTI_boundary.txt", Tables.matrix)
     sTI = CSV.read("simulation_results/sTI_boundary.txt", Tables.matrix)
     ##############################
@@ -20,7 +20,7 @@ let
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
 
     coex_thresh = 1e-10
-    cv_tresh = 0.1 # usually we take 0.2
+    cv_tresh = 0.05 # usually we take 0.2
     dS_vals = [0.005, 1.0]
 
     fig = Figure(; fontsize = 20)

@@ -38,63 +38,42 @@ only_plot = false
 #  - 300 parameter values for the bifucation diagram
 nvals = 300
 
-################### figure 2: dmaxS vs dmaxI
+################### Figure 3
 if !only_plot
     ## run simulation
-    include("scripts/02_dS_dI_env_het.jl")
-    include("scripts/02_dS_dI_pattern.jl")
+    include("scripts/03_dS_dI_env_het.jl")
+    include("scripts/03_dS_dI_pattern.jl")
 end
 
 ## create the plot
-include("scripts/02_dS_dI_plot.jl")
+include("scripts/03_dS_dI_plot.jl")
 ## → the striped patterns were added afterwards with Inkscape
 
-###################  figure S2: bifurcation of a in local system
+###################  Figure S6
 if !only_plot
     ## run simulation
-    include("scripts/S2_bifurc_a.jl")
+    include("scripts/S6_aI_dI_panelA.jl")
+    include("scripts/S6_aI_dI_panelB.jl")
 end
 
 ## create the plot
-include("scripts/S2_bifurc_a_plot.jl")
+include("scripts/S6_aI_dI_plot.jl")
 
-################### figure S6: influence of kS=2
+################### Figure S7
 if !only_plot
     ## run simulation
-    include("scripts/S6_kS_kI.jl")
+    include("scripts/S7_I_plastic_dispersal_env_het.jl")
+    include("scripts/S7_I_plastic_dispersal_pattern.jl")
 end
 
 ## create the plot
-include("scripts/S6_kS_kI_plot.jl")
+include("scripts/S7_I_plastic_dispersal_plot.jl")
 
-################### figure S7: influence of kI and aI
-if !only_plot
-    ## run the simulation
-    include("scripts/S7_aI_kI.jl")
-end
-
-## create the plot
-include("scripts/S7_aI_kI_plot.jl")
-
-################### figure S8: figure 2 with higher attack rates
+################### Figure S8
 if !only_plot
     ## run simulation
-    include("scripts/S8_dmax_dmax_env_het.jl")
-    include("scripts/S8_dmax_dmax_pattern.jl")
+    include("scripts/S8_S_invader.jl")
 end
 
 ## create the plot
-include("scripts/S8_dmax_dmax_plot.jl")
-## → the striped patterns were added afterwards with Inkscape
-
-################### figure S10: dmaxS vs dmaxI with HS as the invader
-if !only_plot
-    ## run the simulation
-    include("scripts/S10_dmax_dmax_pattern_S_invader.jl")
-end
-
-## create the plot
-include("scripts/S10_dmax_dmax_S_invader_plot.jl")
-
-################### figure S11: timeseries with HS as the invader
-include("scripts/S11_superior_invader_timeseries.jl")
+include("scripts/S8_S_invader_plot.jl")

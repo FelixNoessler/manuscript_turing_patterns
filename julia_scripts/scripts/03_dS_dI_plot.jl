@@ -1,11 +1,6 @@
 using CairoMakie
 using JLD2
 
-set_theme!(VLines = (; linewidth = 3),
-           Hlines = (; linewidth = 3),
-           Lines = (; linewidth = 3))
-
-set_theme!()
 let
     @info "Create figure 3"
     ##############################
@@ -17,8 +12,8 @@ let
     color_osc = :dodgerblue1
     color_static = :lightblue
 
-    sim_result = load("simulation_results/02_dS_dI_pattern.jld2")
-    env_result = load("simulation_results/02_dS_dI_env_het.jld2")
+    sim_result = load("simulation_results/03_dS_dI_pattern.jld2")
+    env_result = load("simulation_results/03_dS_dI_env_het.jld2")
     dS = sim_result["dS_vals"]
     dI = sim_result["dI_vals"]
 

@@ -225,6 +225,6 @@ function run_sim_patterns(; nvals)
         dmaxI_vals, dS_vals, nvals)
 end
 
-@info "Run simulations for figure ..."
+@info "Run simulations for figure S7 part 1"
 sim_result = run_sim_patterns(; nvals)
-jldsave("simulation_results/I_with_plastic_dispersal_env_het.jld2"; sim_result...)
+jldsave("simulation_results/S7_I_with_plastic_dispersal_env_het.jld2"; sim_result...)

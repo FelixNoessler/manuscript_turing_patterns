@@ -201,6 +201,6 @@ function run_sim_patterns(; nvals)
         dI_vals, dS_vals, nvals)
 end
 
-@info "Run simulations for figure 2, part 2"
+@info "Run simulations for figure 3, part 2"
 sim_result = run_sim_patterns(; nvals)
-jldsave("simulation_results/02_dS_dI_pattern.jld2"; sim_result...)
+jldsave("simulation_results/03_dS_dI_pattern.jld2"; sim_result...)

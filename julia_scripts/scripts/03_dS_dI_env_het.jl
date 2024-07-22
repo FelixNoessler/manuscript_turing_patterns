@@ -223,6 +223,6 @@ function run_sim(; nvals)
 end
 
 
-@info "Run simulations for figure 2, part 1"
+@info "Run simulations for figure 3, part 1"
 sim_result = run_sim(; nvals)
-jldsave("simulation_results/02_dS_dI_env_het.jld2"; sim_result...)
+jldsave("simulation_results/03_dS_dI_env_het.jld2"; sim_result...)

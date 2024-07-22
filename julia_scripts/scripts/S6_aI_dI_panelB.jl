@@ -118,7 +118,7 @@ function run_sim_patterns(; nvals)
         aI = nothing,
         dN = 4.0,
         dA = 0.004,
-        dS = 0.005, # for panel A
+        dS = 1.0, # for panel B
         dI = nothing
     )
     p_onlyS = deepcopy(p)
@@ -196,6 +196,6 @@ function run_sim_patterns(; nvals)
     return (; H_density, cvs, dI_vals, aI_vals, nvals)
 end
 
-@info "Run simulations for figure S6, part 1"
+@info "Run simulations for figure S6, part 2"
 sim_result = run_sim_patterns(; nvals)
-jldsave("simulation_results/S6_new1.jld2"; sim_result...)
+jldsave("simulation_results/S6_aI_dI_part2.jld2"; sim_result...)

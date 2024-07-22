@@ -1,7 +1,6 @@
 using CairoMakie
 using JLD2
 
-
 let
     @info "Create figure S8"
     ##############################
@@ -16,7 +15,7 @@ let
     cv_tresh = 0.2
 
     #### S invader
-    sim_result = load("simulation_results/S10_pattern.jld2")
+    sim_result = load("simulation_results/S8_S_invader.jld2")
     HS_survived = sim_result["H_density"][:, :, 1] .> coex_thresh
     HI_survived = sim_result["H_density"][:, :, 2] .> coex_thresh
     coexistence = HS_survived .&& HI_survived
@@ -30,7 +29,7 @@ let
     static_coexistence[cvs .> cv_tresh .|| .! coexistence] .= NaN
 
     #### I invader
-    sim_result_I_invader = load("simulation_results/02_dS_dI_pattern.jld2")
+    sim_result_I_invader = load("simulation_results/03_dS_dI_pattern.jld2")
 
     HS_survived_I_invader = sim_result_I_invader["H_density"][:, :, 1] .> coex_thresh
     HI_survived_I_invader  = sim_result_I_invader["H_density"][:, :, 2] .> coex_thresh

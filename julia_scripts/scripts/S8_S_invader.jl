@@ -88,7 +88,7 @@ end
 
 
 
-function run_sim_S10_patterns(; nvals)
+function run_sim(; nvals)
     ###################### parameters of scenarios
     dI_vals = 10 .^ LinRange(-2.5, 0.5, nvals)
     dS_vals = 10 .^ LinRange(-2.5, 0.5, nvals)
@@ -201,6 +201,6 @@ function run_sim_S10_patterns(; nvals)
         dI_vals, dS_vals, nvals)
 end
 
-@info "Run simulations for figure S10"
-sim_result = run_sim_S10_patterns(; nvals)
-jldsave("simulation_results/S10_pattern.jld2"; sim_result...)
+@info "Run simulations for figure S8"
+sim_result = run_sim(; nvals)
+jldsave("simulation_results/S8_S_invader.jld2"; sim_result...)
