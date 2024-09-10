@@ -1,7 +1,9 @@
 # Manuscript code for: "Self-organised pattern formation promotes consumer coexistence by fluctuation-dependent mechanisms"
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10641791.svg)](https://doi.org/10.5281/zenodo.10641791)
 
-Authors: Christian Guill, Felix Nößler, and Toni Klauschies
+Authors: Christian Guill*, Felix Nößler*, and Toni Klauschies
+
+*These authors contributed equally to this work.
 
 This repository contains scripts to reproduce the results in the manuscript.
 

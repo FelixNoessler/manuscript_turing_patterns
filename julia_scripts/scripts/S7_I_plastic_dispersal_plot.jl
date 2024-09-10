@@ -18,7 +18,7 @@ let
     color_static = :lightblue
 
     coex_thresh = 1e-10
-    cv_tresh = 0.2
+    cv_tresh = 0.05
 
     #### pattern formation
     HS_survived = sim_result["H_density"][:, :, 1] .> coex_thresh
@@ -192,7 +192,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/S7_I_plastic_dispersal.png", fig; px_per_unit = 10)
+    save("figures/S7_I_plastic_dispersal.pdf", fig)
 
     display(fig)
 

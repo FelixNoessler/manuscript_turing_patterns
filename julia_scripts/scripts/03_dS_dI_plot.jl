@@ -18,7 +18,7 @@ let
     dI = sim_result["dI_vals"]
 
     coex_thresh = 1e-10
-    cv_tresh = 0.2
+    cv_tresh = 0.05
 
     #### pattern formation
     HS_survived = sim_result["H_density"][:, :, 1] .> coex_thresh
@@ -203,7 +203,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/03_dS_dI.png", fig; px_per_unit = 10)
+    save("figures/03_dS_dI.pdf", fig)
 
     display(fig)
 

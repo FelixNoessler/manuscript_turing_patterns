@@ -20,7 +20,7 @@ let
     yticklabels = ["10⁻³", "10⁻²", "10⁻¹", "10⁰", "10¹"]
 
     coex_thresh = 1e-10
-    cv_tresh = 0.05 # usually we take 0.2
+    cv_tresh = 0.05
     dS_vals = [0.005, 1.0]
 
     fig = Figure(; fontsize = 20)
@@ -125,7 +125,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/S6_aI_dI.png", fig; px_per_unit = 10)
+    save("figures/S6_aI_dI.pdf", fig)
 
     display(fig)
 

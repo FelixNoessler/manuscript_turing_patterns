@@ -89,9 +89,9 @@ let
     tsave_onlyS = 9_500.0:10_000.0
     tspan_onlyI = (0.0, 10_000.0)
     tsave_onlyI = 9_500.0:10_000.0
-    tsave = 1.0:100_000.0    # change!
+    tsave = 99_000.0:100_000.0    # change!
     tspan = (0.0, maximum(tsave))
-    S_invader = false
+    S_invader = false             # change!
 
     ######################
     p = (
@@ -101,11 +101,11 @@ let
         h = 0.5,
         e = 0.33,
         aS = 1.3,
-        aI = 1.2608695652173914,
+        aI = 1.0,
         dN = 4.0,
         dA = 0.004,
         dS = 1.0,  # change!
-        dI = 0.9082261036005619 # change!
+        dI = 0.15 # change!
     )
 
     #########################################
@@ -196,7 +196,7 @@ let
         Legend(fig[1, 2], ax1; framevisible = false)
 
 
-        save("test.png", fig)
+        save("figures/timeseries.png", fig)
         fig
     end
 end

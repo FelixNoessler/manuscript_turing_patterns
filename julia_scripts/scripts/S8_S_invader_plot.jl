@@ -12,7 +12,7 @@ let
     color_osc = :dodgerblue1
     color_static = :lightblue
     coex_thresh = 1e-10
-    cv_tresh = 0.2
+    cv_tresh = 0.05
 
     #### S invader
     sim_result = load("simulation_results/S8_S_invader.jld2")
@@ -141,7 +141,7 @@ let
 
     resize_to_layout!(fig)
 
-    save("figures/S8_S_invader.png", fig; px_per_unit = 10)
+    save("figures/S8_S_invader.pdf", fig;)
 
     display(fig)
 
